@@ -142,9 +142,6 @@ int move_movie_to_cluster(int cluster_id, Cluster cluster[], int number_of_clust
   
 }
 
-// NO TODOs below. Supplemental application: You do not need to look at this. We
-// will use your functions above to implement an algorithm to cluster/group
-// similar movies together.
 Cluster* k_means_clustering(Cluster cluster[], int number_of_clusters,
                             Movie movies[], int number_of_movies) {
   // // Movies are not in any clusters. So their Cluster_ids are -1.
