@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* reset the system to a defulat status */
+/* reset the system to a default status */
 void initialize_system(System *sys) {
   sys->registers[EAX] = 0;
   sys->registers[EDX] = 0;
@@ -87,18 +87,7 @@ RegisterName get_register_by_name(const char *name) {
 
 /*
 This function accepts an operand that can be represented in different formats:
-registers, memory, or constant values. For example, a valid operand could be
-%EAX, (%EAX), -20(%EAX), or $10.
-
-The function returns one of the following: REG for a register operand, MEM for a
-memory operand, or CONST for a constant operand. If the parsing succeeds, the
-function will return the appropriate type; otherwise, it will return UNKNOWN in
-the event of a parsing error.
-
-For a register operand: reg will be one of the registers, and value will be -1.
-For a memory operand: reg will be the register storing the memory address, and
-value will be the offset of that memory address. For a constant operand: reg
-will be NOT_REG, and value will be the constant value.
+registers, memory, or constant values.
 */
 MemoryType get_memory_type(const char *operand) {
   MemoryType result = {UNKNOWN, NOT_REG, -1};
@@ -151,19 +140,6 @@ The execute_movl function validates and executes a movl instruction, ensuring
 source and destination operands are of known and appropriate types, and then
 performs the move operation if valid.
 
-It will return Success if there is no error.
-It will return INSTRUCTION_ERROR if src or dst is a undifined memory space. In
-this case, the type of a MemoryType data will be UNKNOWN. It will return
-INSTRUCTION_ERROR if dst is a constant value instead of a register or memory
-address. It will return INSTRUCTION_ERROR if both src and dst are memory
-addresses. It will return MEMORY_ERROR if there is a memory address from src or
-dst that is an invalid memory address (less than 0, or greater than (MEMORY_SIZE
-- 1) * 4).
-
-If there is any error, all the system registers, memory, and
-system status should remain unchanged.
-Do not change EIP in this function.
-HINT: you may use get_memory_type in this function.
 */
 ExecResult execute_movl(System *sys, char *src, char *dst) {
   
@@ -231,20 +207,6 @@ ExecResult execute_movl(System *sys, char *src, char *dst) {
 The execute_addl function validates and executes a addl instruction, ensuring
 source and destination operands are of known and appropriate types, and then
 performs the add operation if valid.
-
-It will return Success if there is no error.
-It will return INSTRUCTION_ERROR if src or dst is a undifined memory space. In
-this case, the type of a MemoryType data will be UNKNOWN. It will return
-INSTRUCTION_ERROR if dst is a constant value instead of a register or memory
-address. It will return INSTRUCTION_ERROR if both src and dst are memory
-addresses. It will return MEMORY_ERROR if there is a memory address from src or
-dst that is an invalid memory address (less than 0, or
-greater than (MEMORY_SIZE - 1) * 4).
-
-If there is any error, all the system registers, memory, and
-system status should remain unchanged.
-Do not change EIP in this function.
-HINT: you may use get_memory_type in this function.
 */
 ExecResult execute_addl(System *sys, char *src, char *dst) 
 {
@@ -314,20 +276,6 @@ ExecResult execute_addl(System *sys, char *src, char *dst)
 The execute_push function validates and executes a pushl instruction, ensuring
 source operands is of known and appropriate type, and then performs the push
 operation if valid.
-
-It will return Success if there is no error.
-It will return INSTRUCTION_ERROR if src is a undifined memory space. In this
-case, the type of a MemoryType data will be UNKNOWN. It will return MEMORY_ERROR
-if the address stored in src is an invalid memory address (less than 0, or
-greater than (MEMORY_SIZE - 1) * 4).
-It will return MEMORY_ERROR if esp is
-an invalid memory address: less than 4, greater than or equal to MEMORY_SIZE *
-4).
-
-If there is any error, all the system registers, memory, and
-system status should remain unchanged.
-Do not change EIP in this function.
-HINT: you may use get_memory_type in this function.
 */
 ExecResult execute_push(System *sys, char *src) {
   MemoryType memS = get_memory_type(src);
@@ -371,19 +319,6 @@ ExecResult execute_push(System *sys, char *src) {
 The execute_pop function validates and executes a popl instruction, ensuring the
 destination operand is of known and appropriate type, and then performs the pop
 operation if valid.
-
-It will return SUCCESS if there is no error.
-It will return INSTRUCTION_ERROR if dst is not a register or memory address.
-It will return MEMORY_ERROR if dst is an invalid memory address: less than 0, or
-greater than (MEMORY_SIZE - 1) * 4).
-It will return MEMORY_ERROR if the
-address stored in esp is an invalid memory address: less than 0, or
-greater than (MEMORY_SIZE - 1) * 4).
-
-If there is any error, all the system registers, memory, and
-system status should remain unchanged.
-Do not change EIP in this function.
-HINT: you may use get_memory_type in this function.
 */
 ExecResult execute_pop(System *sys, char *dst) 
 {
@@ -424,19 +359,6 @@ The execute_cmpl function validates and executes a cmpl instruction, ensuring
 the source and destination operands are of known and appropriate types, and then
 performs the compare operation and update comparison_flag in the system if
 valid.
-
-It will return SUCCESS if there is no error.
-It will return INSTRUCTION_ERROR if src or dst is an undefined memory space.
-It will return INSTRUCTION_ERROR if both src and dst are memory addresses.
-It will return MEMORY_ERROR if there is a memory address from src or dst that is
-an invalid memory address (less than 0, or
-greater than (MEMORY_SIZE - 1) * 4).
-
-If there is any error, all the system registers, memory, and
-system status should remain unchanged. You can decide the value of
-comparison_flag for each comparison result.
-Do not change EIP in this function.
-HINT: you may use get_memory_type in this function.
 */
 ExecResult execute_cmpl(System *sys, char *src, char *dst) 
 {
@@ -525,15 +447,6 @@ instruction, ensuring the destination operands is of known label, and then
 performs the direct jump operation, or condition jump if condition is met.
 A valid condition argument should be one of the following strings: "JE", "JNE",
 "JL", "JG", or "JMP"
-
-It will return SUCCESS if the jump is executed successfully no matter whether
-condition is met. It will return PC_ERROR if the destination label cannot be
-found in the instruction segment in the system.
-
-If there is any error, all the system registers (except for EIP), memory, and
-system status should remain unchanged.
-Please update program counter (EIP) in this function.
-HINT: you may use get_addr_from_label in this function.
 */
 ExecResult execute_jmp(System *sys, char *condition, char *dst) {
   int addr = get_addr_from_label(sys, dst);
@@ -591,15 +504,6 @@ ExecResult execute_jmp(System *sys, char *condition, char *dst) {
 /*
 The execute_call function validates and executes a call instruction, ensuring
 the destination operand is a known label, and then performs the call operation.
-
-It will return SUCCESS if the call is executed successfully.
-It will return PC_ERROR if the destination label cannot be found in the
-instruction segment in the system.
-
-If there is any error, all the system registers (except for EIP), memory, and
-system status should remain unchanged.
-Please update program counter (EIP) in this function.
-HINT: you may use get_addr_from_label in this function.
 */
 ExecResult execute_call(System *sys, char *dst) 
 {
@@ -620,14 +524,6 @@ ExecResult execute_call(System *sys, char *dst)
 /*
 The execute_ret function validates and executes a return instruction, which pops
 the return address from the stack and update EIP (program counter).
-
-It will return SUCCESS if the return is executed successfully.
-It will return PC_ERROR if the return address is invalid (less than 0 or greater
-than or equal to the number of instructions).
-
-If there is any error, all the system registers (except for EIP and ESP),
-memory, and system status should remain unchanged.
-Please update program counter (EIP) in this function.
 */
 ExecResult execute_ret(System *sys) 
 {
@@ -651,8 +547,6 @@ CMPL, CALL, RET, JMP, JNE, JE, JL, or JG, by employing the corresponding execute
 functions. This process continues until the program encounters any Error status
 or the END instruction. During the execution, it will ignore all the
 instructions that are not listed above and continue to the next one.
-Please update program counter (EIP) for MOVL, ADDL, PUSHL, POPL, and CMPL in
-this function.
 */
 void execute_instructions(System *sys) 
 {
@@ -684,7 +578,6 @@ void execute_instructions(System *sys)
       tok = strtok(NULL, " ");
       num++;
     }
-    //int val = sscanf(inst, "%s %s %s", exec, src, dst);
     ExecResult outcome;
     
     if (strcmp(exec, "MOVL") == 0) 
